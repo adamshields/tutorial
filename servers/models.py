@@ -36,6 +36,55 @@ def pre_save_software(sender, instance, *args, **kwargs):
 
 pre_save.connect(pre_save_software, sender=Software)
 
+# #######################################
+# #        SERVER MODEL MANAGER
+# #######################################
+# class ServerManager(models.Manager):
+
+
+#     # def create(self, username, email, is_premium_member=False, has_support_contract=False):
+#     #     user = User(username=username, email=email)
+#     #     user.save()
+#     #     profile = Profile(
+#     #         user=user,
+#     #         is_premium_member=is_premium_member,
+#     #         has_support_contract=has_support_contract
+#     #     )
+#     #     profile.save()
+#     #     return user
+
+#     def create(self, name, slug):
+#         server = Server(name=name, slug=slug)
+#         print(server)
+#         server.save()
+#         software = Software(
+#             name='name'
+#         )
+#         software.save()
+#         return server
+
+
+# {
+#     "name": "Server20",
+#     "status": true,
+#     "ip_address": "1.22.1.4",
+#     "fqdn": "server1.domain.com",
+#     "software": [
+#         {
+#             "name": "Python 3.6.6",
+#             "version": "3.6.6",
+#             "install_date": "02242021"
+#         },
+#         {
+#             "name": "Java 1.7.281",
+#             "version": "1.7.281",
+#             "install_date": "04042020"
+#         }
+#     ]
+# }
+
+
+
 #######################################
 #               SERVER
 #######################################
@@ -49,6 +98,8 @@ class Server(models.Model):
 
     # FOREIGN RELATIONSHIP to Software software_set
     software        = models.ManyToManyField(Software, verbose_name="Server Software", blank=True)
+
+    # objects = ServerManager()
 
     class Meta:
         verbose_name = ('Server')
@@ -65,8 +116,8 @@ class Server(models.Model):
 	    return reverse("server_update", kwargs={"slug": self.slug})
         
 
-def pre_save_server(sender, instance, *args, **kwargs):
-	slug = slugify(instance.name)
-	instance.slug = slug
+# def pre_save_server(sender, instance, *args, **kwargs):
+# 	slug = slugify(instance.name)
+# 	instance.slug = slug
     
-pre_save.connect(pre_save_server, sender=Server)
+# pre_save.connect(pre_save_server, sender=Server)

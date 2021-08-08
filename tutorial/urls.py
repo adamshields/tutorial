@@ -1,12 +1,15 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from snippets import views
+from snippets.views import SnippetViewSet, UserViewSet
+from servers.views import SoftwareViewSet, ServerViewSet
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'snippets', views.SnippetViewSet)
-router.register(r'users', views.UserViewSet)
+router.register(r'snippets', SnippetViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'software', SoftwareViewSet)
+router.register(r'servers', ServerViewSet)
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
