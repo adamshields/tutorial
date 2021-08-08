@@ -19,7 +19,10 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
             'version',
             'install_date'
             ]
-
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
 
 
 #######################################
@@ -40,6 +43,9 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
             'fqdn',
             'software'
             ]
-
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
 
         depth = 1

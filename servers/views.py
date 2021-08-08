@@ -22,19 +22,17 @@ class SoftwareViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `create`, `retrieve`,
     `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
     """
     queryset = Software.objects.all()
     serializer_class = SoftwareSerializer
+    lookup_field = 'slug'
 
 
 class ServerViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `create`, `retrieve`,
     `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
     """
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
+    lookup_field = 'slug'
