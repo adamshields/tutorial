@@ -37,7 +37,6 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'id',
             'name',
-            # 'slug',
             'status', 
             'ip_address', 
             'fqdn',
