@@ -52,8 +52,8 @@ class ServerSoftwareAPISerializer(serializers.ModelSerializer):
             ]
         lookup_field = 'slug'
         extra_kwargs = {
-            'url': {'lookup_field': 'slug'},
-            'name': {'validators': []},
+            'url': {'lookup_field': 'slug'}
+            # 'name': {'validators': []},
             # 'slug': {'validators': []},
         }
 
@@ -129,7 +129,7 @@ class ServerSerializer(WritableNestedModelSerializer):
 # class ServerSerializer(serializers.HyperlinkedModelSerializer):
 # class ServerSerializer(WritableNestedModelSerializer, serializers.HyperlinkedModelSerializer):
 
-    software = SoftwareSerializer(many=True)
+    # software = SoftwareSerializer(many=True)
     # software = SoftwareSerializer(many=True, context={'request': request})
     # software = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug') # shows associated slugs only
     # software = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
@@ -137,25 +137,156 @@ class ServerSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Server
         fields = [
-            # 'url',
+            'url',
             'id',
             'name',
             # 'slug',
             'status', 
-            # 'ip_address', 
-            # 'fqdn',
-            'software'
+            'ip_address', 
+            'fqdn',
+            # 'software'
             ]
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'},
-            # 'name': {'validators': []},
-            # 'slug': {'validators': []},
+            'name': {'validators': []},
+            'slug': {'validators': []},
             # 'description': {'required': False},
         }
 
         depth = 1
+    def create(self, validated_data):
+        server, created = Server.objects.update_or_create(
+            name=validated_data.get('name', None),
+            defaults={
+                'name': validated_data.get('name', None),
+                'status': validated_data.get('status', None),
+                'ip_address': validated_data.get('ip_address', None),
+                'fqdn': validated_data.get('ip_address', None),
+            })
+        return server
 
+
+
+
+
+
+# obj, created = sfs_upcs.objects.update_or_create(
+#     # filter on the unique value of `upc`
+#     upc=upc,
+#     # update these fields, or create a new object with these values
+#     defaults={
+#         'product_title': product_title, 'is_buyable': is_buyable,  'price': price, 
+#         'image_url': image_url, 'breadcrumb': breadcrumb, 'product_url': product_url,
+#     }
+# )
+    # def create(self, validated_data):
+    #     # server_name = validated_data['name']
+    #     # if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == True:
+    #     #     print(f'SERVER EXISTS IN DATABASE:')
+    #     server, created = Server.objects.update_or_create(
+    #         name=validated_data.get('name', None),
+    #         defaults={'name': validated_data.get('name', None)})
+    #     return server
+    # def create(self, validated_data):
+    #     # server_name = validated_data['name']
+    #     # if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == True:
+    #     #     print(f'SERVER EXISTS IN DATABASE:')
+    #     server, created = Server.objects.update_or_create(
+    #         # slug = validated_data.get('name', None).lower(),
+    #         name = validated_data.get('name', None),
+    #         status = validated_data.get('status', None),
+    #         ip_address = validated_data.get('ip_address', None),
+    #         fqdn = validated_data.get('fqdn', None),
+    #         defaults={
+    #             'name': validated_data.get('name', None),
+    #             # 'slug': validated_data.get('slug', None),
+    #             'status': validated_data.get('status', None),
+    #             'ip_address': validated_data.get('ip_address', None),
+    #             'fqdn': validated_data.get('slug', None),
+
+    #             })
+    #     return server
+    # def update(self, validated_data):
+    #     server_name = validated_data['name']
+    #     if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == False:
+    #         print("Entry contained in queryset")
+    #     server, created = Server.objects.update_or_create(
+    #         name=validated_data.get('name', None),
+    #         defaults={'name': validated_data.get('name', None)})
+    #     return server
+    # def create(self, validated_data):
+    #     server_name = validated_data['name']
+    #     print(f'THIS IS VALIDATED DATA: \n ********** \n{validated_data}\n **********')
+    #     # Check if server exists in database - and return true/false
+    #     server_exists = Server.objects.filter(name=server_name).values_list('id', flat=True).exists()
+    #     print(f'SERVER EXISTS IN DATABASE: \n ********** \n{server_exists}\n **********')
+    #     if server_exists == False:
+    #         print(f'CREATING NEW SERVER: \n{server_exists} with {server_name}')
+    #         return Server.objects.create(**validated_data)
+    #     else:
+    #         print('WTF')
+    # def create(self, validated_data):
+    #     # incoming = data.'name')
+    #     incoming = validated_data.get('name')
+    #     if Server.objects.filter(name=incoming).exists():
+    #         print("Entry contained in queryset")
+    #     server, created = Server.objects.update_or_create(
+    #         name=validated_data.get('name', None),
+    #         defaults={'name': validated_data.get('name', None)})
+    #     return server
+
+    # def update(self, instance, validated_data):
+    #     server_data = validated_data.pop('name')
+    #     # Unless the application properly enforces that this field is
+    #     # always set, the following could raise a `DoesNotExist`, which
+    #     # would need to be handled.
+    #     server = instance.name
+
+    #     instance.name = validated_data.get('name', instance.name)
+    #     instance.status = validated_data.get('status', instance.status)
+    #     instance.ip_address = validated_data.get('ip_address', instance.ip_address)
+
+    #     instance.save()
+
+
+    # def create(self, validated_data):
+    #     # validate_name()
+    #     print(f'{validated_data}')
+    #     server_test = Server.objects.get(**validated_data)
+    #     print(f'This is server name test with get {server_test}')
+
+        
+    #     server = Server.objects.create(**validated_data)
+    #     print(f'This is created server name {server}')
+
+        
+    #     # software_data = validated_data.pop('software')
+    #     # print(f'This is software_data {software_data}')
+    #     # software_models = []
+    #     # for software in software_data:
+    #     #     print(software)
+    #     #     Software.objects.create(**software, server=server)
+    #     # # server.software.set(software)
+    #     return server
+
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     server_name = serializer.validated_data['name']
+    #     if serializer.is_valid():
+    #         # Check if server exists in database - and return true/false
+    #         server_exists = Server.objects.filter(name=server_name).values_list('id', flat=True).exists()
+    #         print(f'Check if this server exists in database: \n{server_exists}')
+    #         # If server does not exist create new server and call perform_create method
+    #         if server_exists != True:
+    #             print(f'This server does not exists in database lets create it: \n{server_exists}')
+    #             self.perform_create(serializer)
+    #             # return Response(data={'message': 'New Server Created ' + server_name})
+    #         else:
+    #             print(f'This server does exists in database lets update it: \n{server_exists}')
+    #             # self.partial_update(serializer)
+    #             # return Response(data={'message': 'Server Updated ' + server_name})
 
     # def create(self, validated_data):
     #     answer, created = Answer.objects.update_or_create(
