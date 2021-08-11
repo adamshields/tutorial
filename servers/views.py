@@ -30,6 +30,123 @@ class ServerSoftwareAPIView(viewsets.ModelViewSet):
     serializer_class = ServerSoftwareAPISerializer
     lookup_field='slug'
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        server_name = serializer.validated_data['name']
+        exists = False
+        if serializer.is_valid():
+            try:
+                # Check if server exists in database - true/false
+                server_exists = Server.objects.filter(name=server_name).values_list('id', flat=True).exists()
+                # server_id = Server.objects.filter(name=server_name).values_list('id', flat=True) # gets  id
+                # print(server_exists)
+                # print(server_id)
+                if server_exists == False:
+ 
+                    self.perform_create(serializer)
+            except:
+                server_exists = False
+            # # server_name = serializer.data.get('name')
+            # # self.perform_create(serializer)
+            # print(server_name + '\n' + "Server Name ^^^ create ServerSoftwareAPIView ModelViewSet")
+            return Response(data={'message': 'New Server Created ' + server_name})
+
+    def perform_create(self, serializer):
+        print("this perform_create")
+        serializer.save()
+
+    def partial_update(self, request):
+        serialized = ServerSoftwareAPISerializer(data=request.data, partial=True)
+        print('Partial')
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # # # # # # BACKUP STUFF
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     if serializer.is_valid():
+    #         # server_name = serializer.data.get('name')
+    #         server_name = serializer.validated_data['name']
+    #         # self.perform_create(serializer)
+    #         print(server_name + '\n' + "Server Name ^^^ create ServerSoftwareAPIView ModelViewSet")
+    #         return Response(data={'message': 'New Server Created ' + server_name})
+    #     else:
+    #         return Response(data={'message': 'Server Exists already'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # def perform_create(self, serializer):
+    #     print("this perform_create")
+    #     serializer.save()
+
+
+
+
+
+
+
+
+
+
+        #         # server_slug = serializer.validated_data['slug']
+        #         # print(server_slug + '\n' + "Server Slug ^^^")
+        #         # We need to get the server_name from the serialized data
+        #         # 
+        #         if server_name != '':
+        #             server_list = Server.objects.filter(name=server_name)
+        #             # self.perform_create(serializer)
+        #             print('step1 create modelviewset')
+        #             return Response(data={'message': 'New Server Created ' + server_name})
+        #             # return Response(data={'message': 'New Server Created'}, status=status.HTTP_201_CREATED)
+        #             if not server_list:
+        #                 # server = serializer.save()
+        #                 print('step2 create modelviewset \n')
+        #                 return Response(data={'message': 'New Server Created ' + server_name})
+        #                 # return Response(data={'message': 'New sadasd Created'}, status=status.HTTP_201_CREATED)
+        #             else:
+        #                 server = server_list[0]
+        #                 serializer = ServerSoftwareAPISerializer(server)
+        #                 print('step3 create modelviewset \n')
+        #             return Response(serializer.data)   
+        # else:
+        #     return Response(data={'message': 'Server Exists already'}, status=status.HTTP_400_BAD_REQUEST)
+
+        #         # self.perform_create(serializer)
+
+        # # headers = self.get_success_headers(serializer.data)
+        # # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # def create(self, request, *args, **kwargs):
     #     serializer = self.get_serializer(data=request.data)
     #     print(serializer)
@@ -69,42 +186,42 @@ class ServerSoftwareAPIView(viewsets.ModelViewSet):
 #                         status=status.HTTP_400_BAD_REQUEST)
 #     else:
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        # print(serializer)
-        # serializer.is_valid(raise_exception=True)
-        if serializer.is_valid():
-                server_name = serializer.validated_data['name']
-                print(server_name + '\n' + "Server Name ^^^ create modelviewset")
-                # server_slug = serializer.validated_data['slug']
-                # print(server_slug + '\n' + "Server Slug ^^^")
-                if server_name != '':
-                    server_list = Server.objects.filter(name=server_name)
-                    # self.perform_create(serializer)
-                    print('step1 create modelviewset')
-                    # return Response(data={'message': 'New Server Created ' + server_name})
-                    # return Response(data={'message': 'New Server Created'}, status=status.HTTP_201_CREATED)
-                    if not server_list:
-                        # server = serializer.save()
-                        print('step2 create modelviewset \n')
-                        return Response(data={'message': 'New Server Created ' + server_name})
-                        # return Response(data={'message': 'New sadasd Created'}, status=status.HTTP_201_CREATED)
-                    else:
-                        server = server_list[0]
-                        serializer = ServerSoftwareAPISerializer(server)
-                        print('step3 create modelviewset \n')
-                    return Response(serializer.data)   
-        else:
-            return Response(data={'message': 'Server Exists already'}, status=status.HTTP_400_BAD_REQUEST)
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     # print(serializer)
+    #     # serializer.is_valid(raise_exception=True)
+    #     if serializer.is_valid():
+    #             server_name = serializer.validated_data['name']
+    #             print(server_name + '\n' + "Server Name ^^^ create modelviewset")
+    #             # server_slug = serializer.validated_data['slug']
+    #             # print(server_slug + '\n' + "Server Slug ^^^")
+    #             if server_name != '':
+    #                 server_list = Server.objects.filter(name=server_name)
+    #                 # self.perform_create(serializer)
+    #                 print('step1 create modelviewset')
+    #                 # return Response(data={'message': 'New Server Created ' + server_name})
+    #                 # return Response(data={'message': 'New Server Created'}, status=status.HTTP_201_CREATED)
+    #                 if not server_list:
+    #                     # server = serializer.save()
+    #                     print('step2 create modelviewset \n')
+    #                     return Response(data={'message': 'New Server Created ' + server_name})
+    #                     # return Response(data={'message': 'New sadasd Created'}, status=status.HTTP_201_CREATED)
+    #                 else:
+    #                     server = server_list[0]
+    #                     serializer = ServerSoftwareAPISerializer(server)
+    #                     print('step3 create modelviewset \n')
+    #                 return Response(serializer.data)   
+    #     else:
+    #         return Response(data={'message': 'Server Exists already'}, status=status.HTTP_400_BAD_REQUEST)
 
-                # self.perform_create(serializer)
+    #             # self.perform_create(serializer)
 
-        # headers = self.get_success_headers(serializer.data)
-        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #     # headers = self.get_success_headers(serializer.data)
+    #     # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def perform_create(self, serializer):
-        print("this perform_create")
-        serializer.save()
+    # def perform_create(self, serializer):
+    #     print("this perform_create")
+    #     serializer.save()
 
 class ServerListAPIView(ListCreateAPIView):
     queryset = Server.objects.all()

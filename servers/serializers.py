@@ -37,7 +37,7 @@ class SoftwareSerializer(serializers.ModelSerializer):
 
 
 class ServerSoftwareAPISerializer(serializers.ModelSerializer):
-    software = SoftwareSerializer(many=True)
+    # software = SoftwareSerializer(many=True)
     class Meta:
         model = Server
         fields = [
@@ -48,11 +48,13 @@ class ServerSoftwareAPISerializer(serializers.ModelSerializer):
             'status', 
             'ip_address', 
             'fqdn',
-            'software'
+            # 'software'
             ]
         lookup_field = 'slug'
         extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
+            'url': {'lookup_field': 'slug'},
+            'name': {'validators': []},
+            # 'slug': {'validators': []},
         }
 
         depth = 1

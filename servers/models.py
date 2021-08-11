@@ -113,12 +113,14 @@ class Server(models.Model):
     def soft(self):
         return self.software_set.all()
 
-    # def get_absolute_url(self):
-    #     return reverse("server_detail", kwargs={"slug": self.slug})
+    def get_absolute_url(self):
+        return reverse("server_detail", kwargs={"slug": self.slug})
 
     # def get_update_url(self):
 	#     return reverse("server_update", kwargs={"slug": self.slug})
-        
+
+    def get_primary_key(self):
+	    return reverse("server_detail", kwargs={"id": self.id})   
 
 def pre_save_server(sender, instance, *args, **kwargs):
 	slug = slugify(instance.name)
