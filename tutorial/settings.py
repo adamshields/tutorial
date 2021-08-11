@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'snippets.apps.SnippetsConfig',
     'servers.apps.ServersConfig',
+    'myapp.apps.MyappConfig',
 ]
 
 MIDDLEWARE = [
