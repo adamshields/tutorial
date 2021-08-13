@@ -29,12 +29,14 @@ class ServerViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `create`, `retrieve`,
     `update` and `destroy` actions.
+
+    ServerViewSet
     """
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
     lookup_field = 'slug'
 
-    
+
 class ServerSoftwareAPIView(viewsets.ModelViewSet):
     queryset = Server.objects.all()
     serializer_class = ServerSoftwareAPISerializer
@@ -52,20 +54,20 @@ class ServerSoftwareAPIView(viewsets.ModelViewSet):
         if serializer.is_valid():
             # Check if server exists in database - and return true/false
             server_exists = Server.objects.filter(name=server_name).values_list('id', flat=True).exists()
-            print(f'Check if this server exists in database: \n{server_exists}')
+            print(f'\n\nCheck if this server exists in database: \n\n{server_exists}')
             # If server does not exist create new server and call perform_create method
             if server_exists != True:
-                print(f'This server does not exists in database lets create it: \n{server_exists}')
+                print(f'\n\nThis server does not exists in database lets create it: \n\n{server_exists}')
                 self.perform_create(serializer)
                 return Response(data={'message': 'New Server Created ' + server_name})
             else:
-                print(f'This server does exists in database lets update it: \n{server_exists}')
+                print(f'\nThis server does exists in database lets update it: \n{server_exists}')
                 self.partial_update(serializer)
                 return Response(data={'message': 'Server Updated ' + server_name})
 
     def perform_create(self, serializer):
-        print(f'This is request.data on perform_create:\n {self.request.data}')
-        print(f'\n Running Perform Create \n')
+        print(f'\nRunning Perform Create')
+        print(f'\nThis is request.data on perform_create:\n\n{self.request.data}')
         serializer.save()
 
     # def partial_update(self, request, *args, **kwargs):
@@ -77,6 +79,7 @@ class ServerSoftwareAPIView(viewsets.ModelViewSet):
         print(f'This is request.data on partial update:\n {request.data}')
         serialized = ServerSoftwareAPISerializer(data=request.data, partial=True)
         print(f'\n Running Partial Update \n')
+        self.serializer.save()
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
@@ -85,7 +88,20 @@ class ServerSoftwareAPIView(viewsets.ModelViewSet):
 
 
 
+    # def post(self, request, *args, **kwargs):
+    #     server_data = request.data
+    #     print(f'This is :{server_data}')
 
+    #     new_server = Server.objects.create(
+    #         name=server_data['name'], 
+    #         status=server_data['status'], 
+    #         ip_address=server_data['ip_address'], 
+    #         fqdn=server_data['fqdn'], 
+    #         software=server_data['software'])
+
+    #     new_server.save()
+
+    #     serializer = ServerCreateUpdateSerializer(new_server)
 
 
 

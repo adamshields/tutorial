@@ -1,0 +1,18 @@
+{
+    "name": "server1",
+    "status": true,
+    "ip_address": "1.1.1.1",
+    "fqdn": "server1.domain.com",
+    "software": [
+        {
+            "name": "Python 3.6.6",
+            "version": "3.6.6",
+            "install_date": "02242021"
+        },
+        {
+            "name": "Java 1.7.281",
+            "version": "1.7.281",
+            "install_date": "04042020"
+        }
+    ]
+}

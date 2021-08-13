@@ -30,11 +30,11 @@ class Software(models.Model):
     # def get_update_url(self):
 	#     return reverse("software_update", kwargs={"slug": self.slug})
 
-# def pre_save_software(sender, instance, *args, **kwargs):
-# 	slug = slugify(instance.name)
-# 	instance.slug = slug
+def pre_save_software(sender, instance, *args, **kwargs):
+	slug = slugify(instance.name)
+	instance.slug = slug
 
-# pre_save.connect(pre_save_software, sender=Software)
+pre_save.connect(pre_save_software, sender=Software)
 
 # #######################################
 # #        SERVER MODEL MANAGER
