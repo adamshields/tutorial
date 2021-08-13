@@ -73,11 +73,11 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
     #     instance, _ = Server.objects.get_or_create(**validated_data)
     #     print(f'\n\nINSTANCE: \n\n{instance}')
     #     return instance
-
+# https://stackoverflow.com/questions/4659360/get-django-object-id-based-on-model-attribute
 
     def create(self,  validated_data):
-        server = validated_data.get('name')
-        print(server)
+        server_name = validated_data.get('name')
+        print(server_name)
         status = validated_data.get('status')
         print(status)
         ip_address = validated_data.get('ip_address')
@@ -85,9 +85,24 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
         fqdn = validated_data.get('fqdn')
         print(fqdn)
         software = validated_data.pop('software')
-        print(software)
-        x = Software.objects.filter(name=self.validated_data['name']).exists()
-        print(x.id)
+        # print(software)
+        server_exists = Software.objects.filter(name=self.validated_data['name']).exists()
+        print(f'SERVER EXISTS \n{server_exists}')
+        # server_id = Server.objects.filter(name=server).values_list('id', flat=True)
+        server_id = Server.objects.only('id').get(name=server_name).id
+        print(f'SERVER ID:\n{server_id}')
+        new_server = Server(
+            name=server_name, 
+            status=status,
+            ip_address=ip_address,
+            fqdn=fqdn
+            )
+        print(new_server.status)
+        print(f'This is {new_server}')
+        # server_pk = Server.objects.get(id=server_id)
+        # print(f'SERVER PRIMARY KEY:\n{server_pk}')
+    #     # if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == True:
+    #     #     print(f'SERVER EXISTS IN DATABASE:')
         # instance = Software.objects.update_or_create(**validated_data)
         # instance.software = software
         # return instance
@@ -103,6 +118,7 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
                 'fqdn': validated_data.get('ip_address', None),
                 # 'software': {}# TypeError: Direct assignment to the forward side of a many-to-many set is prohibited. Use software.set() instead.
             })
+        return server
         # software_data = validated_data.pop('software')
         # # print(software_data)
         # # new_server = server
@@ -119,7 +135,7 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
         # #     print(software)
         # #     x = Software.objects.create(**software, server=server)
         # #     print(x)
-        return server
+        # return server
         # # return new_server
 
 
@@ -162,7 +178,61 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
     #         RateHotel.objects.update_or_create(rate_hotel_id=rate_hotel_id, content_hotel=content_hotel,
     #                                            defaults=rate_hotel_data)
     # defaults={**validated_data}
+# obj, created = sfs_upcs.objects.update_or_create(
+#     # filter on the unique value of `upc`
+#     upc=upc,
+#     # update these fields, or create a new object with these values
+#     defaults={
+#         'product_title': product_title, 'is_buyable': is_buyable,  'price': price, 
+#         'image_url': image_url, 'breadcrumb': breadcrumb, 'product_url': product_url,
+#     }
+# )
+    # def create(self, validated_data):
+    #     # server_name = validated_data['name']
+    #     # if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == True:
+    #     #     print(f'SERVER EXISTS IN DATABASE:')
+    #     server, created = Server.objects.update_or_create(
+    #         name=validated_data.get('name', None),
+    #         defaults={'name': validated_data.get('name', None)})
+    #     return server
+    # def create(self, validated_data):
+    #     # server_name = validated_data['name']
+    #     # if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == True:
+    #     #     print(f'SERVER EXISTS IN DATABASE:')
+    #     server, created = Server.objects.update_or_create(
+    #         # slug = validated_data.get('name', None).lower(),
+    #         name = validated_data.get('name', None),
+    #         status = validated_data.get('status', None),
+    #         ip_address = validated_data.get('ip_address', None),
+    #         fqdn = validated_data.get('fqdn', None),
+    #         defaults={
+    #             'name': validated_data.get('name', None),
+    #             # 'slug': validated_data.get('slug', None),
+    #             'status': validated_data.get('status', None),
+    #             'ip_address': validated_data.get('ip_address', None),
+    #             'fqdn': validated_data.get('slug', None),
 
+    #             })
+    #     return server
+    # def update(self, validated_data):
+    #     server_name = validated_data['name']
+    #     if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == False:
+    #         print("Entry contained in queryset")
+    #     server, created = Server.objects.update_or_create(
+    #         name=validated_data.get('name', None),
+    #         defaults={'name': validated_data.get('name', None)})
+    #     return server
+    # def create(self, validated_data):
+    #     server_name = validated_data['name']
+    #     print(f'THIS IS VALIDATED DATA: \n ********** \n{validated_data}\n **********')
+    #     # Check if server exists in database - and return true/false
+    #     server_exists = Server.objects.filter(name=server_name).values_list('id', flat=True).exists()
+    #     print(f'SERVER EXISTS IN DATABASE: \n ********** \n{server_exists}\n **********')
+    #     if server_exists == False:
+    #         print(f'CREATING NEW SERVER: \n{server_exists} with {server_name}')
+    #         return Server.objects.create(**validated_data)
+    #     else:
+    #         print('WTF')
 
 class ServerListAPIView(serializers.HyperlinkedModelSerializer):
     software = SoftwareSerializer(many=True)
