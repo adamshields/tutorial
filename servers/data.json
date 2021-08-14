@@ -16,3 +16,28 @@
         }
     ]
 }
+
+
+{
+    "name": "Server-001",
+    "status": {{$randomBoolean}},
+    "ip_address": "{{$randomIP}}",
+    "fqdn": "{{$randomDomainName}}",
+    "software": [
+        {
+            "name": "Python 3.6.6",
+            "version": "3.6.6",
+            "install_date": "02242021"
+        },
+        {
+            "name": "Java 1.7.281",
+            "version": "1.7.281",
+            "install_date": "04042020"
+        },
+        {
+            "name": "Python 2.7",
+            "version": "2.7",
+            "install_date": "1628962557"
+        }
+    ]
+}

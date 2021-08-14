@@ -3,6 +3,7 @@ from rest_framework.reverse import reverse
 from servers.models import Server, Software
 from drf_writable_nested.serializers import *
 
+from django.utils.text import slugify
 
 
 
@@ -46,7 +47,6 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
 class ServerSerializer(serializers.HyperlinkedModelSerializer):
     software = SoftwareSerializer(many=True, required=False)
 
-
     class Meta:
         model = Server
         fields = [
@@ -61,11 +61,138 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'},
-            'name': {'validators': []}
+            'name': {'validators': []},
+            'slug': {'validators': []}
         }
 
         depth = 1
 
+
+
+    def create(self, validated_data):
+        software_data = validated_data.pop('software')
+        server, created = Server.objects.update_or_create(
+            name = validated_data.get('name', None),
+            defaults={
+                'name': validated_data.get('name', None),
+                'status': validated_data.get('status', None),
+                'ip_address': validated_data.get('ip_address', None),
+                'fqdn': validated_data.get('fqdn', None),
+            })
+
+        for software in software_data:
+            software, created = Software.objects.update_or_create(
+                name=software['name'],
+                version=software['version'],
+                install_date=software['install_date']
+                )
+            server.software.add(software)
+        return server
+
+
+
+    ##################################
+    # This works 
+    ##################################
+    # def create(self, validated_data):
+    #     software_data = validated_data.pop('software')
+    #     server, created = Server.objects.update_or_create(
+    #         name = validated_data.get('name', None),
+    #         defaults={
+    #             'name': validated_data.get('name', None),
+    #             'status': validated_data.get('status', None),
+    #             'ip_address': validated_data.get('ip_address', None),
+    #             'fqdn': validated_data.get('fqdn', None),
+    #         })
+
+    #     for software in software_data:
+    #         software, created = Software.objects.get_or_create(name=software['name'])
+    #         server.software.add(software)
+    #     return server
+
+    ##################################
+    # This works 
+    ##################################
+
+
+
+
+    # def create(self,  validated_data):
+    #     # software_data = validated_data.pop('software')
+    #     # server = Server(
+    #     #     id=validated_data.get('id', None),
+    #     #     name=validated_data.get('name', None),
+    #     #     status=validated_data.get('status', None),
+    #     #     ip_address=validated_data.get('ip_address', None),
+    #     #     fqdn=validated_data.get('fqdn', None),
+    #     #     )
+    #     # server.save()
+    #     # for software in software_data:
+    #     #     print(**software)
+    #     #     Software.objects.create(**software, server=server)
+
+    #     server, created = Server.objects.update_or_create(
+    #         name = validated_data.get('name', None),
+    #         defaults={
+    #             'name': validated_data.get('name', None),
+    #             'status': validated_data.get('status', None),
+    #             'ip_address': validated_data.get('ip_address', None),
+    #             'fqdn': validated_data.get('fqdn', None),
+    #         })
+    #     software_data = validated_data.pop('software')
+    #     available_software = []
+    #     for software in software_data:
+    #         if "id" in software.keys():
+    #             if Software.objects.filter(id=software["id"]).exists():
+    #                 new_software = Software.objects.get(id=software["id"])
+    #                 new_software.name = software.get('name', new_software.name)
+    #                 new_software.update()
+    #                 print(new_software)
+    #                 available_software.append(new_software.id)
+    #             else:
+    #                 continue
+    #         else:
+    #             new_software = Software.objects.create(**software, server=server)
+    #             available_software.append(new_software.id)
+    #         # Software.objects.create(**software, server=server)
+    #     server.software_set.add(**software)
+    #     return server
+
+
+
+    # def create(self, validated_data):
+    #     ingredients_data = validated_data.pop('ingredients')
+    #     recipe = Recipe.objects.create(**validated_data)
+
+    #     for ingredient in ingredients_data:
+    #         ingredient, created = Ingredient.objects.get_or_create(name=ingredient['name'])
+    #         recipe.ingredients.add(ingredient)
+    #     return recipe
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # available_software = []
+        # for software in software_data:
+        #     if 'name' in software.keys():
+        #         if Software.objects.filter(name=software['name']).exists():
+        #             print('exists')
+        #             name = Software.objects.get(name=software['name'])
+        #             print(name)
+        #             # version = Software.objects.get(version=software['version'])
+        #             # print(version)
+        #     # Software.objects.create(**software, server=server)
+        # server.software_set.add(**software)
+        # return server
 
 
     # def create(self, validated_data):
@@ -75,30 +202,47 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
     #     return instance
 # https://stackoverflow.com/questions/4659360/get-django-object-id-based-on-model-attribute
 
-    def create(self,  validated_data):
-        server_name = validated_data.get('name')
-        print(server_name)
-        status = validated_data.get('status')
-        print(status)
-        ip_address = validated_data.get('ip_address')
-        print(ip_address)
-        fqdn = validated_data.get('fqdn')
-        print(fqdn)
-        software = validated_data.pop('software')
-        # print(software)
-        server_exists = Software.objects.filter(name=self.validated_data['name']).exists()
-        print(f'SERVER EXISTS \n{server_exists}')
-        # server_id = Server.objects.filter(name=server).values_list('id', flat=True)
-        server_id = Server.objects.only('id').get(name=server_name).id
-        print(f'SERVER ID:\n{server_id}')
-        new_server = Server(
-            name=server_name, 
-            status=status,
-            ip_address=ip_address,
-            fqdn=fqdn
-            )
-        print(new_server.status)
-        print(f'This is {new_server}')
+    # def create(self,  validated_data):
+    #     software_data = validated_data.pop('software')
+    #     server = Server.objects.create(**validated_data)
+    #     for software in software_data:
+    #         Software.objects.create(**software, server=server)
+    #     print(server.software_set.all())
+    #     server.software_set.add(software)
+    #     return server
+    #     # return Server.objects.update_or_create(name=server, **validated_data)
+
+    # def create(self,  validated_data):
+    #     # software_data = validated_data.pop('software')
+    #     # server = Server(
+    #     #     id=validated_data.get('id', None),
+    #     #     name=validated_data.get('name', None),
+    #     #     status=validated_data.get('status', None),
+    #     #     ip_address=validated_data.get('ip_address', None),
+    #     #     fqdn=validated_data.get('fqdn', None),
+    #     #     )
+    #     # server.save()
+    #     # for software in software_data:
+    #     #     print(**software)
+    #     #     Software.objects.create(**software, server=server)
+
+    #     server, created = Server.objects.update_or_create(
+    #         name = validated_data.get('name', None),
+    #         defaults={
+    #             'name': validated_data.get('name', None),
+    #             'status': validated_data.get('status', None),
+    #             'ip_address': validated_data.get('ip_address', None),
+    #             'fqdn': validated_data.get('fqdn', None),
+    #         })
+    #     software_data = validated_data.pop('software')
+    #     available_software = []
+    #     for software in software_data:
+    #         # print(**software)
+    #         Software.objects.create(**software, server=server)
+    #     server.software_set.add(**software)
+    #     return server
+        # return Server.objects.update_or_create(name=server, **validated_data)
+
         # server_pk = Server.objects.get(id=server_id)
         # print(f'SERVER PRIMARY KEY:\n{server_pk}')
     #     # if Server.objects.filter(name=server_name).values_list('id', flat=True).exists() == True:
@@ -109,16 +253,19 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
         # for software in software_items:
         #     print(software)
         # print(validated_data)
-        server, created = Server.objects.update_or_create(
-            name = validated_data.get('name', None),
-            defaults={
-                'name': validated_data.get('name', None),
-                'status': validated_data.get('status', None),
-                'ip_address': validated_data.get('ip_address', None),
-                'fqdn': validated_data.get('ip_address', None),
-                # 'software': {}# TypeError: Direct assignment to the forward side of a many-to-many set is prohibited. Use software.set() instead.
-            })
-        return server
+    # def create(self,  validated_data):
+
+    #     server, created = Server.objects.update_or_create(
+    #         name = validated_data.get('name', None),
+    #         defaults={
+    #             'name': validated_data.get('name', None),
+    #             'status': validated_data.get('status', None),
+    #             'ip_address': validated_data.get('ip_address', None),
+    #             'fqdn': validated_data.get('ip_address', None),
+    #             # 'software': {}# TypeError: Direct assignment to the forward side of a many-to-many set is prohibited. Use software.set() instead.
+    #         })
+    #     # server.software.set(software)
+    #     return server
         # software_data = validated_data.pop('software')
         # # print(software_data)
         # # new_server = server
