@@ -79,6 +79,11 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
                 'ip_address': validated_data.get('ip_address', None),
                 'fqdn': validated_data.get('fqdn', None),
             })
+            
+        if created == False:
+            print(f'Updated {server} name')
+        else:
+            print(f'Created {server} name')
 
         for software in software_data:
             software, created = Software.objects.update_or_create(
@@ -87,8 +92,16 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
                 install_date=software['install_date']
                 )
             server.software.add(software)
+        if created == False:
+            print(f'Updated {software.name} name')
+        else:
+            print(f'Created {software.name} name')
+
         return server
 
+            # print(f'Updated \n Server \n{validated_data}')
+            # print(f'created server \n{server}')
+            # print(server)
 
 
     ##################################
