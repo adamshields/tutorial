@@ -13,7 +13,7 @@ from django.utils.text import slugify
 
 
 class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
-
+    
     class Meta:
         model = Software
         fields = [
@@ -43,7 +43,7 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
 #######################################
 #               SERVER
 #######################################
-
+# WritableNestedModelSerializer
 class ServerSerializer(serializers.HyperlinkedModelSerializer):
     software = SoftwareSerializer(many=True, required=False)
 
@@ -99,10 +99,94 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
 
         return server
 
+
+    # # # Kind of works but get unique 
+    # def update(self, instance, validated_data):
+    #     instance.name = validated_data.get('name', instance.name)
+    #     instance.status = validated_data.get('status', instance.status)
+    #     instance.ip_address = validated_data.get('ip_address', instance.ip_address)
+    #     instance.fqdn = validated_data.get('fqdn', instance.fqdn)
+    #     instance.save()
+
+    #     software = validated_data.get('software')
+
+    #     for item in software:
+    #         item_id = item.get('id', None)
+    #         print(f'id: {item_id} instance: {instance}')
+    #         if item_id:
+    #             # Create obj
+    #             software_item = Software.objects.get(id=item_id, software=instance)
+    #             print(f'id: {item_id} instance: {instance}')
+    #             # Create obj attributes
+    #             software_item.name = item.get('name', software_item.name)
+    #             print(f'id: {item_id} instance: {software_item.name}')
+    #             software_item.version = item.get('version', software_item.version)
+    #             print(f'id: {item_id} instance: {software_item.version}')
+    #             software_item.install_date = item.get('install_date', software_item.install_date)
+    #             print(f'id: {item_id} instance: {software_item.install_date}')
+    #             software_item.save()
+    #         else:
+    #             Software.objects.create(server=instance, **item)
+    #     return instance
+
+
+    def update(self, instance, validated_data):
+        # CHANGE "userprofile" here to match your one-to-one field name
+        if 'software' in validated_data:
+            nested_serializer = self.fields['software']
+            nested_instance = instance.software
+            nested_data = validated_data.pop('software')
+
+            # Runs the update on whatever serializer the nested data belongs to
+            nested_serializer.update(nested_instance, nested_data)
+
+        # Runs the original parent update(), since the nested fields were
+        # "popped" out of the data
+        return super(ServerSerializer, self).update(instance, validated_data)
+
             # print(f'Updated \n Server \n{validated_data}')
             # print(f'created server \n{server}')
             # print(server)
+# # https://stackoverflow.com/questions/37240621/django-rest-framework-updating-nested-object
+#     def update(self, instance, validated_data):
+#     # def update_product_items(self, instance, validated_data):
+#         # get the nested objects list
+#         software_product_items = validated_data.pop('software')
+#         # get all nested objects related with this instance and make a dict(id, object)
+#         software_product_items_dict = dict((i.id, i) for i in instance.software.all())
+#         print(f'dictionary of items \n{software_product_items_dict}')
 
+#         for software_item_data in software_product_items:
+#             if 'id' in software_item_data:
+#                 # if exists id remove from the dict and update
+#                 software_product_item = software_product_items_dict.pop(software_item_data['id'])
+#                 # remove id from validated data as we don't require it.
+#                 software_item_data.pop('id')
+#                 # loop through the rest of keys in validated data to assign it to its respective field
+#                 for key in software_item_data.keys():
+#                     setattr(software_product_item,key,software_item_data[key])
+#                     print(software_product_item)
+#                     print(software_item_data[key])
+
+#                 software_product_item.save()
+#                 # instance.software.add(software)
+#             else:
+#                 # else create a new object
+#                 print("else \n\n")
+#                 print(instance)
+#                 # Software.objects.create(name=instance, **software_item_data)
+#                 Software.objects.create(
+#                     name=software_item_data['name'],
+#                     # slug=software_item_data['name'],
+#                     version=software_item_data['version'],
+#                     install_date=software_item_data['install_date']
+#                     )
+#                 instance.software.add(software)
+
+#         # delete remaining elements because they're not present in my update call
+#         if len(software_product_items_dict) > 0:
+#             for item in software_product_items_dict.values():
+#                 item.delete()
 
     ##################################
     # This works 
@@ -117,10 +201,24 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
     #             'ip_address': validated_data.get('ip_address', None),
     #             'fqdn': validated_data.get('fqdn', None),
     #         })
+            
+    #     if created == False:
+    #         print(f'Updated {server} name')
+    #     else:
+    #         print(f'Created {server} name')
 
     #     for software in software_data:
-    #         software, created = Software.objects.get_or_create(name=software['name'])
+    #         software, created = Software.objects.update_or_create(
+    #             name=software['name'],
+    #             version=software['version'],
+    #             install_date=software['install_date']
+    #             )
     #         server.software.add(software)
+    #     if created == False:
+    #         print(f'Updated {software.name} name')
+    #     else:
+    #         print(f'Created {software.name} name')
+
     #     return server
 
     ##################################
