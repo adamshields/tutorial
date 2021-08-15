@@ -40,14 +40,56 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
             })
         return software
 
-#######################################
-#               SERVER
-#######################################
-# WritableNestedModelSerializer
-class ServerSerializer(serializers.HyperlinkedModelSerializer):
+
+# NotImplementedError: Serializers with many=True do not support multiple update by default, only multiple create. 
+# For updates it is unclear how to deal with insertions and deletions. If you need to support multiple update, use 
+# a `ListSerializer` class and override `.update()` so you can specify the behavior exactly. 
+# class ServerListSerializer(serializers.ListSerializer):
+
+#     def update(self, instance, validated_data):
+#         # Maps for id->instance and id->data item.
+#         book_mapping = {book.id: book for book in instance}
+#         data_mapping = {item['id']: item for item in validated_data}
+
+#         # Perform creations and updates.
+#         ret = []
+#         for book_id, data in data_mapping.items():
+#             book = book_mapping.get(book_id, None)
+#             if book is None:
+#                 ret.append(self.child.create(data))
+#             else:
+#                 ret.append(self.child.update(book, data))
+
+#         # Perform deletions.
+#         for book_id, book in book_mapping.items():
+#             if book_id not in data_mapping:
+#                 book.delete()
+
+#         return ret
+
+# class ServerSerializer(serializers.Serializer):
+#     # We need to identify elements in the list using their primary key,
+#     # so use a writable field here, rather than the default which would be read-only.
+#     id = serializers.IntegerField()
+#     ...
+
+#     class Meta:
+#         list_serializer_class = ServerListSerializer
+
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+# #######################################
+# #               SERVER
+# #######################################
+# # WritableNestedModelSerializer
+class ServerSerializer(WritableNestedModelSerializer, serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(required=False)
     software = SoftwareSerializer(many=True, required=False)
 
     class Meta:
+        # list_serializer_class = ServerListSerializer
         model = Server
         fields = [
             'url',
@@ -96,9 +138,29 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
             print(f'Updated {software.name} name')
         else:
             print(f'Created {software.name} name')
-
         return server
 
+    # def update(self, instance, validated_data):
+    #     # CHANGE "userprofile" here to match your one-to-one field name
+    #     if 'software' in validated_data:
+    #         nested_serializer = self.fields['software']
+    #         nested_instance = instance.software
+    #         nested_data = validated_data.pop('software')
+
+    #         # Runs the update on whatever serializer the nested data belongs to
+    #         nested_serializer.update(nested_instance, nested_data)
+
+    #     # Runs the original parent update(), since the nested fields were
+    #     # "popped" out of the data
+    #     return super(ServerSerializer, self).update(instance, validated_data)
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+
+            # print(f'Updated \n Server \n{validated_data}')
+            # print(f'created server \n{server}')
+            # print(server)
 
     # # # Kind of works but get unique 
     # def update(self, instance, validated_data):
@@ -129,24 +191,6 @@ class ServerSerializer(serializers.HyperlinkedModelSerializer):
     #             Software.objects.create(server=instance, **item)
     #     return instance
 
-
-    def update(self, instance, validated_data):
-        # CHANGE "userprofile" here to match your one-to-one field name
-        if 'software' in validated_data:
-            nested_serializer = self.fields['software']
-            nested_instance = instance.software
-            nested_data = validated_data.pop('software')
-
-            # Runs the update on whatever serializer the nested data belongs to
-            nested_serializer.update(nested_instance, nested_data)
-
-        # Runs the original parent update(), since the nested fields were
-        # "popped" out of the data
-        return super(ServerSerializer, self).update(instance, validated_data)
-
-            # print(f'Updated \n Server \n{validated_data}')
-            # print(f'created server \n{server}')
-            # print(server)
 # # https://stackoverflow.com/questions/37240621/django-rest-framework-updating-nested-object
 #     def update(self, instance, validated_data):
 #     # def update_product_items(self, instance, validated_data):
