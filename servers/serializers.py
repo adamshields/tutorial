@@ -76,11 +76,11 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
 #     class Meta:
 #         list_serializer_class = ServerListSerializer
 # class UpdateOrCreate:
-#     def update_or_create_helper(self, obj_model, pk):
+#     def update_or_create_helper(self, obj_model, id):
 #         # Check to see if data has been given to the serializer
 #         if hasattr(self, 'initial_data'):
 #             # Pull the object from the db
-#             obj = obj_model.objects.filter(pk=self.initial_data[pk])
+#             obj = obj_model.objects.filter(id=self.initial_data[id])
 #             # Check if one and only one object exists with matching criteria
 #             if len(obj)==1:
 #                 # If you want to allow for partial updates
@@ -89,6 +89,7 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
 #                 self.instance = obj[0]
 #         # Continue normally
 #         return super().is_valid()
+
 ###########################################################################################################################
 ###########################################################################################################################
 ###########################################################################################################################
@@ -118,43 +119,42 @@ class ServerSerializer(WritableNestedModelSerializer, serializers.HyperlinkedMod
         extra_kwargs = {
             'url': {'lookup_field': 'slug'},
             'name': {'validators': []},
-            'slug': {'validators': []}
+            # 'slug': {'validators': []}
         }
 
         depth = 1
-    def create(self, validated_data):
-        if Server.objects.filter(name='name').exists():
-            print("Entry contained in queryset")
-            self.instance = Server.objects.get(name=validated_data['name'])
-            self.instance = self.update(self.instance, validated_data)
-        else:
-            software_data = validated_data.pop('software')
-            server, created = Server.objects.update_or_create(
-                name = validated_data.get('name', None),
-                defaults={
-                    'name': validated_data.get('name', None),
-                    'status': validated_data.get('status', None),
-                    'ip_address': validated_data.get('ip_address', None),
-                    'fqdn': validated_data.get('fqdn', None),
-                })
-                
-            if created == False:
-                print(f'Updated {server} name')
-            else:
-                print(f'Created {server} name')
 
-            for software in software_data:
-                software, created = Software.objects.update_or_create(
-                    name=software['name'],
-                    version=software['version'],
-                    install_date=software['install_date']
-                    )
-                server.software.add(software)
-            if created == False:
-                print(f'Updated {software.name} name')
-            else:
-                print(f'Created {software.name} name')
-            return server
+    # def is_valid(self, *args, **kwargs):
+    #     return self.update_or_create_helper(obj_model=Server, id='id')
+
+    def create(self, validated_data):
+        software_data = validated_data.pop('software')
+        server, created = Server.objects.update_or_create(
+            name = validated_data.get('name', None),
+            defaults={
+                'name': validated_data.get('name', None),
+                'status': validated_data.get('status', None),
+                'ip_address': validated_data.get('ip_address', None),
+                'fqdn': validated_data.get('fqdn', None),
+            })
+            
+        if created == False:
+            print(f'Updated {server} name')
+        else:
+            print(f'Created {server} name')
+
+        for software in software_data:
+            software, created = Software.objects.update_or_create(
+                name=software['name'],
+                version=software['version'],
+                install_date=software['install_date']
+                )
+            server.software.add(software)
+        if created == False:
+            print(f'Updated {software.name} name')
+        else:
+            print(f'Created {software.name} name')
+        return server
 
 
     # def create(self, validated_data):

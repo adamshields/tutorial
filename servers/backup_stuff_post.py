@@ -109,3 +109,26 @@ class ServerViewSet(viewsets.ModelViewSet):
         #     print(software)
         #     # OrderedDict([('name', 'Software1'), ('version', '1.2.3')])
         #     # OrderedDict([('name', 'Software2')])
+
+
+
+
+            # def create(self, validated_data):
+    #     incoming = data.'name')
+    #     # incoming = validated_data.get('name')
+    #     if Server.objects.filter(name=incoming.name).exists():
+    #         print("Entry contained in queryset")
+    #     server, created = Server.objects.update_or_create(
+    #         name=validated_data.get('name', None),
+    #         defaults={'name': validated_data.get('name', None)})
+    #     return server
+    # def create(self, validated_data):
+    #     try:
+    #         self.instance = Software.objects.get(name=validated_data['name'])
+    #         self.instance = self.update(self.instance, validated_data)
+    #         assert self.instance is not None, (
+    #             '`update()` did not return an object instance.'
+    #         )
+    #         return self.instance
+    #     except Software.DoesNotExist:
+    #         return super(SoftwareSerializer, self).create(validated_data)
