@@ -75,7 +75,20 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
 
 #     class Meta:
 #         list_serializer_class = ServerListSerializer
-
+# class UpdateOrCreate:
+#     def update_or_create_helper(self, obj_model, pk):
+#         # Check to see if data has been given to the serializer
+#         if hasattr(self, 'initial_data'):
+#             # Pull the object from the db
+#             obj = obj_model.objects.filter(pk=self.initial_data[pk])
+#             # Check if one and only one object exists with matching criteria
+#             if len(obj)==1:
+#                 # If you want to allow for partial updates
+#                 self.partial = True
+#                 # Add the current instance to the object
+#                 self.instance = obj[0]
+#         # Continue normally
+#         return super().is_valid()
 ###########################################################################################################################
 ###########################################################################################################################
 ###########################################################################################################################
@@ -85,7 +98,7 @@ class SoftwareSerializer(serializers.HyperlinkedModelSerializer):
 # #######################################
 # # WritableNestedModelSerializer
 class ServerSerializer(WritableNestedModelSerializer, serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField(required=False)
+    # id = serializers.IntegerField(required=False)
     software = SoftwareSerializer(many=True, required=False)
 
     class Meta:
@@ -93,6 +106,7 @@ class ServerSerializer(WritableNestedModelSerializer, serializers.HyperlinkedMod
         model = Server
         fields = [
             'url',
+            # 'pk',
             'id',
             'name',
             'status', 
@@ -108,37 +122,111 @@ class ServerSerializer(WritableNestedModelSerializer, serializers.HyperlinkedMod
         }
 
         depth = 1
-
-
-
     def create(self, validated_data):
-        software_data = validated_data.pop('software')
-        server, created = Server.objects.update_or_create(
-            name = validated_data.get('name', None),
-            defaults={
-                'name': validated_data.get('name', None),
-                'status': validated_data.get('status', None),
-                'ip_address': validated_data.get('ip_address', None),
-                'fqdn': validated_data.get('fqdn', None),
-            })
-            
-        if created == False:
-            print(f'Updated {server} name')
+        if Server.objects.filter(name='name').exists():
+            print("Entry contained in queryset")
+            self.instance = Server.objects.get(name=validated_data['name'])
+            self.instance = self.update(self.instance, validated_data)
         else:
-            print(f'Created {server} name')
+            software_data = validated_data.pop('software')
+            server, created = Server.objects.update_or_create(
+                name = validated_data.get('name', None),
+                defaults={
+                    'name': validated_data.get('name', None),
+                    'status': validated_data.get('status', None),
+                    'ip_address': validated_data.get('ip_address', None),
+                    'fqdn': validated_data.get('fqdn', None),
+                })
+                
+            if created == False:
+                print(f'Updated {server} name')
+            else:
+                print(f'Created {server} name')
 
-        for software in software_data:
-            software, created = Software.objects.update_or_create(
-                name=software['name'],
-                version=software['version'],
-                install_date=software['install_date']
-                )
-            server.software.add(software)
-        if created == False:
-            print(f'Updated {software.name} name')
-        else:
-            print(f'Created {software.name} name')
-        return server
+            for software in software_data:
+                software, created = Software.objects.update_or_create(
+                    name=software['name'],
+                    version=software['version'],
+                    install_date=software['install_date']
+                    )
+                server.software.add(software)
+            if created == False:
+                print(f'Updated {software.name} name')
+            else:
+                print(f'Created {software.name} name')
+            return server
+
+
+    # def create(self, validated_data):
+    #     try:
+    #         self.instance = Server.objects.get(name=validated_data['name'])
+    #         self.instance = self.update(self.instance, validated_data)
+    #         # assert self.instance is not None, (
+    #         #     '`update()` did not return an object instance.'
+    #         # )
+    #         return self.instance
+    #     except Server.DoesNotExist:
+    #         self.create_update(validated_data)
+            # return super(SoftwareSerializer, self).create_like_a_g(validated_data)
+            # software_data = validated_data.pop('software')
+            # server, created = Server.objects.update_or_create(
+            #     name = validated_data.get('name', None),
+            #     defaults={
+            #         'name': validated_data.get('name', None),
+            #         'status': validated_data.get('status', None),
+            #         'ip_address': validated_data.get('ip_address', None),
+            #         'fqdn': validated_data.get('fqdn', None),
+            #     })
+                
+            # if created == False:
+            #     print(f'Updated {server} name')
+            # else:
+            #     print(f'Created {server} name')
+
+            # for software in software_data:
+            #     software, created = Software.objects.update_or_create(
+            #         name=software['name'],
+            #         version=software['version'],
+            #         install_date=software['install_date']
+            #         )
+            #     server.software.add(software)
+            # if created == False:
+            #     print(f'Updated {software.name} name')
+            # else:
+            #     print(f'Created {software.name} name')
+            # return server
+            # return super(SoftwareSerializer, self).create(validated_data)
+
+    # def create(self, validated_data):
+    #     server_name = validated_data.get('name')
+    #     software_data = validated_data.pop('software')
+    #     server, created = Server.objects.update_or_create(
+    #         name = validated_data.get('name', None),
+    #         defaults={
+    #             'name': validated_data.get('name', None),
+    #             'status': validated_data.get('status', None),
+    #             'ip_address': validated_data.get('ip_address', None),
+    #             'fqdn': validated_data.get('fqdn', None),
+    #         })
+            
+    #     if created == False:
+    #         print(f'Updated {server} name')
+    #     else:
+    #         print(f'Created {server} name')
+
+    #     for software in software_data:
+    #         software, created = Software.objects.update_or_create(
+    #             name=software['name'],
+    #             version=software['version'],
+    #             install_date=software['install_date']
+    #             )
+    #         server.software.add(software)
+    #     if created == False:
+    #         print(f'Updated {software.name} name')
+    #     else:
+    #         print(f'Created {software.name} name')
+    #     return server
+
 
     # def update(self, instance, validated_data):
     #     # CHANGE "userprofile" here to match your one-to-one field name
