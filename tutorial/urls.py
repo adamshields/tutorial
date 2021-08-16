@@ -3,8 +3,22 @@ from django.urls import path, include
 from django.conf.urls import url
 from rest_framework.routers import DefaultRouter
 from snippets.views import SnippetViewSet, UserViewSet
-from servers.views import SoftwareViewSet, ServerViewSet, ServerSoftwareAPIView, ServerListAPIView
-#Server2ViewSet # , ServerList, ServerDetail
+from servers.views import SoftwareViewSet, ServerViewSet, ServerSoftwareAPIView, ServerListAPIView, TestPage, iommi_view, my_server_detail, my_server_list
+# Server2ViewSet # , ServerList, ServerDetail
+# from iommi import Table, Form
+from servers.models import Server, Software
+# from servers.views import TestPage
+
+from iommi import (
+    Action,
+    Column,
+    Form,
+    Page,
+    Table,
+    html,
+    Menu,
+    MenuItem,
+)
 
 # Create a router and register our viewsets with it.
 api_router = DefaultRouter()
@@ -19,13 +33,33 @@ server_create_api = ServerSoftwareAPIView.as_view({
 })
 
 # The API URLs are now determined automatically by the router.
+# ...your urls...
+# path('iommi-table-test-filter/', Table(
+#     auto__model=Server,
+#     ip_address__name__filter__include=True,  # <--- replace `name` with some field from your model
+# ).as_view()),
+
 urlpatterns = [
+    path('fuck/', iommi_view),
     path('admin/', admin.site.urls),
     # path('api/server/', ServerListAPIView.as_view(), name='server_list_api'),
     path('api/server/', server_create_api, name='server_create_api'),
     path('', include(api_router.urls)),
     url(r'^api2/', include('myapp.urls')),
-    # path('', include('servers.urls')),
+    # path('^adam/', include('servers.urls')),
+    path('my_servers/', my_server_list),
+    path('my_servers/<int:pk>/', my_server_detail),
+    path('iommi-form-test/', Form.create(auto__model=Server).as_view()),
+    path('iommi-table-test/', Table(auto__model=Server).as_view()),
+    path('iommi-table-test-filter/', Table(
+        auto__model=Server,
+        # <--- replace `name` with some field from your model
+        columns__ip_address__filter__include=True,
+    ).as_view()),
+    path('iommi-page-test/', TestPage().as_view()),
+    
+
+    path('servershit/', include('servers.urls')),
     # path('test/', ServerList.as_view()),
     # path('test/<int:pk>/', ServerDetail.as_view()),
     # path('test/<slug:slug>/', ServerDetail.as_view()),
@@ -47,10 +81,82 @@ urlpatterns = [
 # # Additionally, we include login URLs for the browsable API.
 # urlpatterns = [
 #     path('', include(router.urls)),
-#     path('', include('snippets.urls')),  
+#     path('', include('snippets.urls')),
 
 # ]
 # urlpatterns += [
 #     path('api-auth/', include('rest_framework.urls')),
 # ]
+
+from django.shortcuts import render, Http404, HttpResponseRedirect, get_object_or_404
+# ----------------------------------------------------------------------------------------------------
+# Tables ----------------------------------------------------
+
+class ServersTableIndexView(Table): # This is manually defined table with specific chosen rows
+    name = Column()
+    status = Column()
+    ip_address = Column()
+    fqdn = Column()
+    software = Column()
+
+# Views ----------------------------------------------------
+
+def index(request):
+    return render(
+        request,
+        template_name='index.html',
+        context=dict(
+            content=ServersTableIndexView(rows=Server.objects.all()).bind(request=request), # Calling ServersTableIndexView using the .bind
+            title='Main Page for views using function and html pages'
+        )
+    )
+# ----------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------
+# Tables ----------------------------------------------------
+
+class ServersTableUseModel(Table): # Same table type
+    name = Column()
+    status = Column()
+    ip_address = Column()
+    fqdn = Column()
+
+# Views ----------------------------------------------------
+
+def index2(request): # using a queryset for return also using this makes it so you don't use the index.html and base.html templates
+    return ServersTableUseModel(
+        title='Servers',
+        rows=Server.objects.all(),
+    )
+# ----------------------------------------------------------------------------------------------------
+urlpatterns += [
+    path('index/', index),
+    path('index2/', index2),
+]
+
+
+# ----------------------------------------------------------------------------------------------------
+# Tables ----------------------------------------------------
+
+class ServersTableUsingMeta(Table): # using meta values and passing it as_view()
+    name = Column()
+    status = Column()
+    ip_address = Column()
+    fqdn = Column()
+
+    class Meta:
+        title = 'Servers using meta'
+        rows = Server.objects.all()
+
+
+
+# Views/URLS ----------------------------------------------------
+urlpatterns += [
+    path('index3/', Table(auto__model=Server).as_view()),
+
+]
+
+# ----------------------------------------------------------------------------------------------------
+
 

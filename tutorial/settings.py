@@ -41,9 +41,12 @@ INSTALLED_APPS = [
     'snippets.apps.SnippetsConfig',
     'servers.apps.ServersConfig',
     'myapp.apps.MyappConfig',
+    'iommi',
 ]
 
 MIDDLEWARE = [
+    # 'iommi.live_edit.Middleware',
+    'iommi.sql_trace.Middleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,7 +54,36 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'iommi.profiling.Middleware',
+    'iommi.middleware',
 ]
+
+
+# MIDDLEWARE = [
+#     'iommi.live_edit.Middleware',
+#     'iommi.sql_trace.Middleware',
+#     'django.middleware.security.SecurityMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'iommi.middleware',
+#     'iommi.profiling.Middleware',
+# ]
+from iommi import Style, Asset
+from iommi.style_bootstrap import bootstrap
+
+# IOMMI_DEFAULT_STYLE = Style(
+#     bootstrap,
+#     base_template='templates/base.html',
+#     root__assets=dict(
+#         my_project_custom_css=Asset.css(attrs__href='/static/custom.css'),
+#         my_project__custom_js=Asset.js(attrs__src='/static/custom.js'),
+#     ),
+# )
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
@@ -61,7 +93,7 @@ ROOT_URLCONF = 'tutorial.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

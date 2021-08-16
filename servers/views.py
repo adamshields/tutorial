@@ -13,6 +13,12 @@ from rest_framework.parsers import JSONParser
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+from rest_framework.generics import *
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework import serializers, request
+from iommi import Page, Form, Table
+
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -21,10 +27,41 @@ def api_root(request, format=None):
         'servers': reverse('server-list', request=request, format=format)
     })
 
-from rest_framework.generics import *
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework import serializers, request
+
+
+class TestPage(Page):
+    create_form = Form.create(auto__model=Server)
+    a_table = Table(auto__model=Server)
+
+    class Meta:
+        title = 'An iommi page page header ddkkddkdkdkdkdk!'
+        
+
+
+def iommi_view(request, name):
+    name = get_object_or_404(Server, name=name)
+    return TestPage(title=f'Hello {name}')
+
+
+
+
+# class MyPage(Page):
+#     title = html.h1('My page')
+#     users = Table(auto__model=User)
+#     create_user = Form.create(auto__model=User)
+
+
+
+
+
+
+
+
+
+
+
+
+
 class ServerViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `create`, `retrieve`,
@@ -302,49 +339,49 @@ class ServerSoftwareAPIView(viewsets.ModelViewSet):
     #     print(f'This is {request.method} on SnippetDetail')
     #     return self.destroy(request, *args, **kwargs)
 # @csrf_exempt
-# def my_server_list(request):
-#     """
-#     List all code servers, or create a new Server.
-#     """
-#     if request.method == 'GET':
-#         servers = Server.objects.all()
-#         # software = Software.objects.all()
-#         serializer = MyServerSerializer(servers, many=True)
-#         return JsonResponse(serializer.data, safe=False)
+def my_server_list(request):
+    """
+    List all code servers, or create a new Server.
+    """
+    if request.method == 'GET':
+        servers = Server.objects.all()
+        # software = Software.objects.all()
+        serializer = MyServerSerializer(servers, many=True)
+        return JsonResponse(serializer.data, safe=False)
 
-#     elif request.method == 'POST':
-#         data = JSONParser().parse(request)
-#         serializer = MyServerSerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse(serializer.data, status=201)
-#         return JsonResponse(serializer.errors, status=400)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = MyServerSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
 
-# @csrf_exempt
-# def my_server_detail(request, pk):
-#     """
-#     Retrieve, update or delete a code snippet.
-#     """
-#     try:
-#         server = Server.objects.get(pk=pk)
-#     except Server.DoesNotExist:
-#         return HttpResponse(status=404)
+@csrf_exempt
+def my_server_detail(request, pk):
+    """
+    Retrieve, update or delete a code snippet.
+    """
+    try:
+        server = Server.objects.get(pk=pk)
+    except Server.DoesNotExist:
+        return HttpResponse(status=404)
 
-#     if request.method == 'GET':
-#         serializer = MyServerSerializer(server)
-#         return JsonResponse(serializer.data)
+    if request.method == 'GET':
+        serializer = MyServerSerializer(server)
+        return JsonResponse(serializer.data)
 
-#     elif request.method == 'PUT':
-#         data = JSONParser().parse(request)
-#         serializer = MyServerSerializer(server, data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse(serializer.data)
-#         return JsonResponse(serializer.errors, status=400)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = MyServerSerializer(server, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=400)
 
-#     elif request.method == 'DELETE':
-#         server.delete()
-#         return HttpResponse(status=204)
+    elif request.method == 'DELETE':
+        server.delete()
+        return HttpResponse(status=204)
 
 import logging
 logger = logging.getLogger(__name__)
@@ -533,3 +570,8 @@ class SoftwareViewSet(viewsets.ModelViewSet):
 #     def delete(self, request, *args, **kwargs):
 #         print(f'This is {request.method} on ServerDetail')
 #         return self.destroy(request, *args, **kwargs)
+
+
+
+
+
