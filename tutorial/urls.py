@@ -44,7 +44,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('api/server/', ServerListAPIView.as_view(), name='server_list_api'),
     path('api/server/', server_create_api, name='server_create_api'),
-    path('', include(api_router.urls)),
+    path('api3/', include(api_router.urls)),
     url(r'^api2/', include('myapp.urls')),
     # path('^adam/', include('servers.urls')),
     path('my_servers/', my_server_list),
@@ -158,5 +158,63 @@ urlpatterns += [
 ]
 
 # ----------------------------------------------------------------------------------------------------
+# Pages ----------------------------------------------------
 
 
+
+
+
+class SoftwareTable(Table):
+    class Meta:
+        auto__model = Software
+        columns__name__cell__url = lambda row, **_: row.get_absolute_url()
+        columns__name__filter__include = True
+
+
+class IndexPageHome(Page):
+    title = html.h1('MotherShip MerLink View')
+    welcome_text = 'This is the index page for Servers multi components'
+
+    servers = Table(auto__model=Server, page_size=5)
+    Software = Table(auto__model=Software, page_size=5)
+
+def server_page(request, server):
+    # artist = get_object_or_404(Artist, name=artist)
+    server = get_object_or_404(Server, name=server)
+
+    class ServerPage(Page):
+        title = html.h1(server.name)
+
+        software = SoftwareTable(auto__rows=Software.objects.filter(server=server))
+        # tracks = TrackTable(auto__rows=Track.objects.filter(album__artist=artist))
+
+    return ServerPage()
+
+
+
+def software_page(request, server, software):
+    software = get_object_or_404(Software, name=software, server__name=server)
+
+    class SoftwarePage(Page):
+        title = html.h1(software)
+        # text = html.a(software.server, attrs__href=software.server.get_absolute_url())
+
+        # tracks = TrackTable(
+        #     auto__rows=Track.objects.filter(album=album),
+        #     columns__album__include=False,
+        # )
+
+    return SoftwarePage()
+
+# Views/URLS ----------------------------------------------------
+urlpatterns += [
+    path('', IndexPageHome().as_view()),
+    path('servers/', Table(auto__model=Server).as_view()),
+    path('software/', Table(auto__model=Software).as_view()),
+    path('servers/<server>/', server_page),
+    path('servers/<software>/', software_page),
+    # path('artist/<artist>/<album>/', album_page),
+
+]
+# ----------------------------------------------------------------------------------------------------
+# Pages ----------------------------------------------------

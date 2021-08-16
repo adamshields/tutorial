@@ -26,7 +26,8 @@ class Software(models.Model):
 
     # def get_absolute_url(self):
     #     return reverse("software_detail", kwargs={"slug": self.slug})
-
+    def get_absolute_url(self):
+        return f'/software/{self.slug}/'
     # def get_update_url(self):
 	#     return reverse("software_update", kwargs={"slug": self.slug})
 
@@ -113,9 +114,10 @@ class Server(models.Model):
     def soft(self):
         return self.software_set.all()
 
+    # def get_absolute_url(self):
+    #     return reverse("server_detail", kwargs={"slug": self.slug})
     def get_absolute_url(self):
-        return reverse("server_detail", kwargs={"slug": self.slug})
-
+        return f'/server/{self.slug}/'
     # def get_update_url(self):
 	#     return reverse("server_update", kwargs={"slug": self.slug})
 
