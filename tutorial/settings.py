@@ -38,15 +38,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'debug_toolbar',
     'snippets.apps.SnippetsConfig',
     'servers.apps.ServersConfig',
+    'merlink.apps.MerlinkConfig',
     'myapp.apps.MyappConfig',
     'iommi',
+    
 ]
 
 MIDDLEWARE = [
     # 'iommi.live_edit.Middleware',
     'iommi.sql_trace.Middleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,35 +58,26 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'iommi.profiling.Middleware',
     'iommi.middleware',
+    'iommi.profiling.Middleware',
 ]
 
 
-# MIDDLEWARE = [
-#     'iommi.live_edit.Middleware',
-#     'iommi.sql_trace.Middleware',
-#     'django.middleware.security.SecurityMiddleware',
-#     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.middleware.common.CommonMiddleware',
-#     'django.middleware.csrf.CsrfViewMiddleware',
-#     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.contrib.messages.middleware.MessageMiddleware',
-#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#     'iommi.middleware',
-#     'iommi.profiling.Middleware',
-# ]
+
 from iommi import Style, Asset
 from iommi.style_bootstrap import bootstrap
+from iommi.style_django_admin import django_admin
+from iommi.style_semantic_ui import semantic_ui
+IOMMI_DEBUG = True
 
-# IOMMI_DEFAULT_STYLE = Style(
-#     bootstrap,
-#     base_template='templates/base.html',
-#     root__assets=dict(
-#         my_project_custom_css=Asset.css(attrs__href='/static/custom.css'),
-#         my_project__custom_js=Asset.js(attrs__src='/static/custom.js'),
-#     ),
-# )
+IOMMI_DEFAULT_STYLE = Style(
+    bootstrap,
+    # base_template='templates/base.html',
+    # root__assets=dict(
+    #     my_project_custom_css=Asset.css(attrs__href='/static/custom.css'),
+    #     my_project__custom_js=Asset.js(attrs__src='/static/custom.js'),
+    # ),
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

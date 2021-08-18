@@ -116,8 +116,10 @@ class Server(models.Model):
 
     # def get_absolute_url(self):
     #     return reverse("server_detail", kwargs={"slug": self.slug})
-    def get_absolute_url(self):
-        return f'/server/{self.slug}/'
+
+    # def get_absolute_url(self):
+    #     return f'/yep/{self.slug}/'
+
     # def get_update_url(self):
 	#     return reverse("server_update", kwargs={"slug": self.slug})
 
