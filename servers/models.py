@@ -9,12 +9,34 @@ from django.utils.text import slugify
 #               SOFTWARE
 #######################################
 
+class Version(models.Model):
+    name            = models.CharField(max_length=200, unique=True, verbose_name='Software Version')
+    slug            = models.SlugField(unique=True, null=True)
+    status          = models.BooleanField(default=False, verbose_name='Active')
+
+    class Meta:
+        verbose_name = ('Version')
+        verbose_name_plural = ('Versions')
+        ordering = ["id", "name"]
+
+    def __str__(self):
+        return self.name
+
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Version, self).save(*args, **kwargs)
+
+#######################################
+#               SOFTWARE
+#######################################
+
 class Software(models.Model):
     name            = models.CharField(max_length=200, unique=True, verbose_name='Software Name')
     slug            = models.SlugField(unique=True, null=True)
     status          = models.BooleanField(default=False, verbose_name='Active')
-    version         = models.CharField(max_length=300, verbose_name='Version', help_text='Version', blank=True, null=True)
-    install_date    = models.CharField(max_length=300, verbose_name='Install Date', help_text='Install Date', blank=True, null=True)
+    version         = models.ForeignKey(Version, on_delete=models.CASCADE)
+    # version         = models.CharField(max_length=300, verbose_name='Version', help_text='Version', blank=True, null=True)
 
     class Meta:
         verbose_name = ('Software')
@@ -36,53 +58,6 @@ def pre_save_software(sender, instance, *args, **kwargs):
 	instance.slug = slug
 
 pre_save.connect(pre_save_software, sender=Software)
-
-# #######################################
-# #        SERVER MODEL MANAGER
-# #######################################
-# class ServerManager(models.Manager):
-
-
-#     # def create(self, username, email, is_premium_member=False, has_support_contract=False):
-#     #     user = User(username=username, email=email)
-#     #     user.save()
-#     #     profile = Profile(
-#     #         user=user,
-#     #         is_premium_member=is_premium_member,
-#     #         has_support_contract=has_support_contract
-#     #     )
-#     #     profile.save()
-#     #     return user
-
-#     def create(self, name, slug):
-#         server = Server(name=name, slug=slug)
-#         print(server)
-#         server.save()
-#         software = Software(
-#             name='name'
-#         )
-#         software.save()
-#         return server
-
-
-# {
-#     "name": "Server20",
-#     "status": true,
-#     "ip_address": "1.22.1.4",
-#     "fqdn": "server1.domain.com",
-#     "software": [
-#         {
-#             "name": "Python 3.6.6",
-#             "version": "3.6.6",
-#             "install_date": "02242021"
-#         },
-#         {
-#             "name": "Java 1.7.281",
-#             "version": "1.7.281",
-#             "install_date": "04042020"
-#         }
-#     ]
-# }
 
 
 
@@ -131,3 +106,52 @@ def pre_save_server(sender, instance, *args, **kwargs):
 	instance.slug = slug
     
 pre_save.connect(pre_save_server, sender=Server)
+
+
+# #######################################
+# #        SERVER MODEL MANAGER
+# #######################################
+# class ServerManager(models.Manager):
+
+
+#     # def create(self, username, email, is_premium_member=False, has_support_contract=False):
+#     #     user = User(username=username, email=email)
+#     #     user.save()
+#     #     profile = Profile(
+#     #         user=user,
+#     #         is_premium_member=is_premium_member,
+#     #         has_support_contract=has_support_contract
+#     #     )
+#     #     profile.save()
+#     #     return user
+
+#     def create(self, name, slug):
+#         server = Server(name=name, slug=slug)
+#         print(server)
+#         server.save()
+#         software = Software(
+#             name='name'
+#         )
+#         software.save()
+#         return server
+
+
+# {
+#     "name": "Server20",
+#     "status": true,
+#     "ip_address": "1.22.1.4",
+#     "fqdn": "server1.domain.com",
+#     "software": [
+#         {
+#             "name": "Python 3.6.6",
+#             "version": "3.6.6",
+#             "install_date": "02242021"
+#         },
+#         {
+#             "name": "Java 1.7.281",
+#             "version": "1.7.281",
+#             "install_date": "04042020"
+#         }
+#     ]
+# }
+
